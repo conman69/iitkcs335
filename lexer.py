@@ -3,7 +3,15 @@
 
 import sys,ply.lex
 
-tokens = ('REALNUMBER','INT_CONST','HEXANUM','EXPONENTIALNUM','ADDITION','SUBTRACTION','MULTIPLICATION','DIVISION','POWER','EXPONENTIAL','PARENL','PARENR','SEMICOLON','BLOCK_BEGIN','BLOCK_END',)
+
+
+
+keywords = {'if':'IF','else':'ELSE','return':'RETURN'}
+
+
+tokens = ['EQUALS','REALNUMBER','INT_CONST','HEXANUM','EXPONENTIALNUM','ADDITION','SUBTRACTION','MULTIPLICATION','DIVISION','POWER','EXPONENTIAL','PARENL','PARENR','SEMICOLON','IDENTIFIER','BLOCK_BEGIN','BLOCK_END',]+list(keywords.values())
+
+
 
 t_ignore		= ' \t\n'
 t_REALNUMBER		= r'(\d*\.\d+)|(\d+\.\d*)'
@@ -21,12 +29,18 @@ t_PARENR		= r'\)'
 t_SEMICOLON             = r'\;'
 t_BLOCK_BEGIN   	= r'\{'
 t_BLOCK_END 		= r'\}'
+t_EQUALS  		= r'=='
 
 
 
 def t_error(t):
     print "Unrecognized char skipped : '%s'" % t.value[0]
     t.lexer.skip(1)
+
+def t_IDENTIFIER(t):
+    r"[a-zA-Z$_][\w$]*"
+    t.type = keywords.get(t.value,'IDENTIFIER')
+    return t
 
 lexer = ply.lex.lex()
 
@@ -37,12 +51,12 @@ def lex_output(raw_input):
     data = open(raw_input).read()
     lexer.input(data)
 
+    fo = open("foo.txt","w")
+
     for tok in lexer:
-        # Open a file
-	fo = open("foo.txt", "a")
 	fo.write('('+tok.value+'\t\t\t\t\t"'+tok.type+'")\n')
-	# Close opened file
-	fo.close()
+
+    fo.close()
 
 if __name__ == "__main__":
 	from sys import argv
